@@ -1,0 +1,14 @@
+{
+  "name": "first-prog-web-app",
+  "version": "1.0.0",
+  "description": "My first progressive web app",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server -c-1 -p 4000"
+  },
+  "author": "Nick Cummings",
+  "license": "ISC",
+  "dependencies": {
+    "http-server": "^0.11.1"
+  }
+}

@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+    integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="dodgerblue">
+  <meta name="apple-mobile-web-app-title" content="QuickQuotes">
+  <!-- <link rel="apple-touch-icon" href="" sizes="144x144"> -->
+
+  <title>Quick Quotes</title>
+</head>
+
+<body>
+  <div class="background hidden"></div>
+
+  <div class="main-nav">
+    <div class="main-nav__brand">
+      <i class="fas fa-feather-alt"></i>
+    </div>
+    <div class="main-nav__title">Quick Quotes</div>
+    <div class="main-nav__trailing-btn hidden" onclick="editList()">Edit</div>
+  </div>
+
+  <div class="main-content">
+    <div class="home-page">
+        <div class="daily-quote">
+          <div class="daily-quote-title">
+            Quote of the Day
+          </div>
+          <div class="daily-quote-body">
+            <div class="daily-quote-text">
+              "A man who grabs a cat by the tail learns something he can learn in no other way."
+            </div>
+            <div class="daily-quote-author">
+              ~ Mark Twain
+            </div>
+          </div>
+          <div class="btn-row">
+            <div class="btn">Save to<br>My Quotes</div>
+            <div class="btn">Generate<br>New Quote</div>
+          </div>
+        </div>
+    </div>
+
+    <div class="quotes-page hidden">
+      <div class="add-tile" onclick="openAddCategoryModal()">
+        <div class="leading-tile-icon"><i class="fas fa-plus"></i></div>
+        <div class="tile-text">Add a category</div>
+      </div>
+    </div>
+
+    <div class="category-page hidden">
+      <div class="add-tile" onclick="openAddQuoteModal()">
+        <div class="leading-tile-icon"><i class="fas fa-plus"></i></div>
+        <div class="tile-text">Add a quote</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-tabs">
+    <div class="tab tab-left">
+      <div class="tab-text">Search</div>
+    </div>
+    <div class="tab tab-middle-space">
+      <div class="tab-text">My Quotes</div>
+    </div>
+    <div class="tab tab-middle" onclick="goToMyQuotes()">
+      <div class="tab-text">My Quotes</div>
+    </div>
+    <div class="tab tab-right">
+      <div class="tab-text">Discover</div>
+    </div>
+  </div>
+
+  <script>
+    const quotesByCategory = {
+      'All': [
+        {
+          id: 1111, 
+          text: 'I am the master of my fate. I am the captain of my soul.', 
+          auth: 'William Ernest Henley'
+        },
+        {
+          id: 1112, 
+          text: 'Let me be gathered to the quiet West, the sundown splendid and serene. Death.', 
+          auth: 'William Ernest Henley'
+        },
+        {
+          id: 1113, 
+          text: 'Do or do not, there is no try.', 
+          auth: 'Yoda'
+        },
+        {
+          id: 1114, 
+          text: 'Quitting smoking is easy. I\'ve done it dozens of times.', 
+          auth: 'Mark Twain'
+        },
+        {
+          id: 1115, 
+          text: 'Yesterday is history. Tomorrow is a mystery. Today is a gift, that is why it is called the present', 
+          auth: 'Master Oogway'
+        }
+      ],
+      'Funny': [
+        {
+          id: 1114, 
+          text: 'Quitting smoking is easy. I\'ve done it dozens of times.', 
+          auth: 'Mark Twain'
+        }
+      ],
+      'Inspirational': [
+        {
+          id: 1113, 
+          text: 'Do or do not, there is no try.', 
+          auth: 'Yoda'
+        },
+        {
+          id: 1115, 
+          text: 'Yesterday is history. Tomorrow is a mystery. Today is a gift, that is why it is called the present', 
+          auth: 'Master Oogway'
+        }
+      ],
+      'Poetry': [
+      {
+          id: 1111, 
+          text: 'I am the master of my fate. I am the captain of my soul.', 
+          auth: 'William Ernest Henley'
+        },
+        {
+          id: 1112, 
+          text: 'Let me be gathered to the quiet West, the sundown splendid and serene. Death.', 
+          auth: 'William Ernest Henley'
+        },
+      ]
+    };
+    let selectedCategory = '';
+
+    const navBrand = document.querySelector('.main-nav__brand');
+    const navTitle = document.querySelector('.main-nav__title');
+    const navBtn = document.querySelector('.main-nav__trailing-btn');
+    const homePage = document.querySelector('.home-page');
+    const quotesPage = document.querySelector('.quotes-page');
+    const categoryPage = document.querySelector('.category-page');
+    const tabs = document.querySelector('.main-tabs');
+
+    function goToHome() {
+      quotesPage.classList.add('hidden');
+      navBtn.classList.add('hidden');
+      homePage.classList.remove('hidden');
+      tabs.classList.remove('hidden');
+      navBrand.innerHTML = `<i class="fas fa-feather-alt"></i>`;
+      navBrand.onclick = ``;
+      navTitle.innerHTML = 'Quick Quotes';
+    }
+
+    function goToMyQuotes() {
+      homePage.classList.add('hidden');
+      tabs.classList.add('hidden');
+      quotesPage.classList.remove('hidden');
+      navBtn.classList.remove('hidden');
+      navBrand.innerHTML = `<i class="fas fa-home"></i>`;
+      navBrand.onclick = goToHome;
+      navTitle.innerHTML = 'My Quotes';
+      getCategoriesList();
+    }
+
+    function backToMyQuotes() {
+      categoryPage.classList.add('hidden');
+      quotesPage.classList.remove('hidden');
+      navBrand.innerHTML = `<i class="fas fa-home"></i>`;
+      navBrand.onclick = goToHome;
+      navTitle.innerHTML = 'My Quotes';
+      getCategoriesList();
+    }
+
+    function openAddCategoryModal() {
+      document.querySelector('.background').classList.remove('hidden');
+      document.querySelector('.background').onclick = closeAddCategoryModal;
+      const modalHtml = `
+        <div class="add-category-modal">
+          <div class="modal-title">New Category</div>
+          <div class="modal-row">
+            <div class="modal-label">Name: </div>
+            <input type="text" class="new-category-name-input">
+          </div>
+          <div class="btn-row">
+            <div class="btn" onclick="addCategory()">SUBMIT</div>
+            <div class="btn" onclick="closeAddCategoryModal()">CANCEL</div>
+          </div>
+        </div>
+      `;
+      quotesPage.innerHTML += modalHtml;
+    } 
+
+    function closeAddCategoryModal() {
+      quotesPage.removeChild(document.querySelector('.add-category-modal'));
+      document.querySelector('.background').classList.add('hidden');
+      document.querySelector('.background').onclick = '';
+    } 
+
+    function addCategory() {
+      let input = document.querySelector('.new-category-name-input');
+      let category = input.value;
+      quotesByCategory[category] = [];
+      getCategoriesList();
+      closeAddCategoryModal();
+      input.value = '';
+    }
+
+    function getCategoriesList() {
+      clearCategoriesList();
+      console.log('Categories', Object.keys(quotesByCategory));
+      const categories = Object.keys(quotesByCategory);
+      for (let i = 0; i < categories.length; i++) {
+        const tileHtml = `
+          <div class="category-tile" data-category="${categories[i]}" onclick="goToCategory('${categories[i]}')">
+            <div class="leading-tile-icon">
+              <i class="fas fa-trash"></i>
+            </div>
+            <div class="tile-text">${categories[i]}</div>
+            <div class="trailing-tile-icon">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          </div>
+        `;
+        quotesPage.innerHTML += tileHtml;
+      }
+    }
+
+    function clearCategoriesList() {
+      for (let i = 0; i < quotesPage.children.length; i++) {
+        let child = quotesPage.children[i];
+        if (child.classList.contains('category-tile')) {
+          quotesPage.removeChild(child);
+          i--;
+        }
+      }
+    }
+
+    function goToCategory(category) {
+      quotesPage.classList.add('hidden');
+      categoryPage.classList.remove('hidden');
+      navBrand.innerHTML = `<i class="fas fa-arrow-left"></i>`;
+      navBrand.onclick = backToMyQuotes;
+      navTitle.innerHTML = category + ' Quotes';
+      selectedCategory = category;
+      getQuotesList();
+    }
+
+    function openAddQuoteModal() {
+      document.querySelector('.background').classList.remove('hidden');
+      document.querySelector('.background').onclick = closeAddQuoteModal;
+      const modalHtml = `
+        <div class="add-quote-modal">
+          <div class="modal-title">New Quote</div>
+          <div class="modal-row">
+            <div class="modal-label">Text: </div>
+            <input type="text" class="new-quote-text-input">
+          </div>
+          <div class="modal-row">
+            <div class="modal-label">Author: </div>
+            <input type="text" class="new-quote-author-input">
+          </div>
+          <div class="btn-row">
+            <div class="btn" onclick="addQuote()">SUBMIT</div>
+            <div class="btn" onclick="closeAddQuoteModal()">CANCEL</div>
+          </div>
+        </div>
+      `;
+      categoryPage.innerHTML += modalHtml;
+    } 
+
+    function closeAddQuoteModal() {
+      categoryPage.removeChild(document.querySelector('.add-quote-modal'));
+      document.querySelector('.background').classList.add('hidden');
+      document.querySelector('.background').onclick = '';
+    } 
+
+    function addQuote() {
+      const newQuoteText = document.querySelector('.new-quote-text-input');
+      const newQuoteAuth = document.querySelector('.new-quote-author-input');
+      const quote = {
+        id: Date.now(),
+        text: newQuoteText.value,
+        auth: newQuoteAuth.value
+      };
+      console.log(selectedCategory, quote);
+      quotesByCategory[selectedCategory].push(quote);
+      if (selectedCategory !== 'All') quotesByCategory['All'].push(quote);
+      getQuotesList();
+      closeAddQuoteModal();
+    }
+
+    function getQuotesList() {
+      clearQuotesList();
+      const quotes = quotesByCategory[selectedCategory];
+      console.log('Quotes', quotes);
+      for (let i = 0; i < quotes.length; i++) {
+        let tileHtml = `
+          <div class="quote-tile" 
+            data-id="${quotes[i].id}"
+            data-text="${quotes[i].text}" 
+            data-auth="${quotes[i].auth}" 
+            onclick="openViewQuoteModal('${quotes[i].text}', '${quotes[i].auth}')"
+            >
+            <div class="leading-tile-icon">
+              <i class="fas fa-trash"></i>
+            </div>
+            <div class="tile-text">
+              <div class="quote-tile-text">
+                ${quotes[i].text.length > 45 ? quotes[i].text.substr(0,45) : quotes[i].text}
+              </div>
+              <div class="quote-tile-subtext">${quotes[i].auth}</div>
+            </div>
+            <div class="fade-out-tile-text"></div>
+            <div class="trailing-tile-icon">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          </div>
+        `;
+        categoryPage.innerHTML += tileHtml;
+      }
+    }
+
+    function clearQuotesList() {
+      for (let i = 0; i < categoryPage.children.length; i++) {
+        let child = categoryPage.children[i];
+        if (child.classList.contains('quote-tile')) {
+          categoryPage.removeChild(child);
+          i--;
+        }
+      }
+    }
+
+    function openViewQuoteModal(text, author) {
+      console.log(text, author);
+      document.querySelector('.background').classList.remove('hidden');
+      document.querySelector('.background').onclick = closeViewQuoteModal;
+      const modalHtml = `
+        <div class="view-quote-modal">
+          <div class="view-quote-text">${text}</div>
+          <div class="view-quote-author">${author}</div>
+          <div class="btn-row">
+            <div class="btn" onclick="closeViewQuoteModal()">CLOSE</div>
+          </div>
+        </div>
+      `;
+      categoryPage.innerHTML += modalHtml;
+    }
+
+    function closeViewQuoteModal() {
+      categoryPage.removeChild(document.querySelector('.view-quote-modal'));
+      document.querySelector('.background').classList.add('hidden');
+      document.querySelector('.background').onclick = '';
+    }
+
+    function editList() {
+      navBtn.innerHTML = 'Done';
+      navBtn.onclick = stopEditList;
+      let icons = [].slice.call(document.querySelectorAll('.leading-tile-icon'));
+      icons.map(icon => {
+        if (icon.parentNode.getAttribute('data-category') === 'All' || icon.parentNode.classList.size > 1) {
+          icon.parentNode.onclick = '';
+          return;
+        };
+        icon.style.width = 'auto'; 
+        icon.parentNode.onclick = () => deleteItem(icon.parentNode);
+      });
+    }
+
+    function stopEditList() {
+      navBtn.innerHTML = 'Edit';
+      navBtn.onclick = editList;
+      let catIcons = [].slice.call(document.querySelectorAll('.category-tile .leading-tile-icon'));
+      catIcons.map(icon => {
+          icon.style.width = 0; 
+          icon.parentNode.onclick = () => goToCategory(icon.parentNode.getAttribute('data-category'))
+      });
+      let quoteIcons = [].slice.call(document.querySelectorAll('.quote-tile .leading-tile-icon'));
+      quoteIcons.map(icon => {
+          icon.style.width = 0; 
+          let text = icon.parentNode.getAttribute('data-text');
+          let auth = icon.parentNode.getAttribute('data-auth');
+          icon.parentNode.onclick = () => openViewQuoteModal(text, auth);
+      });
+    }
+
+    function deleteItem(el) {
+      console.log('Delete', el);
+      const category = el.getAttribute('data-category');
+      if (category !==  null) {
+        delete quotesByCategory[category];
+        getCategoriesList();
+        editList();
+        return;
+      }
+      else {
+
+      }
+    }
+
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+      margin: 0;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: 50px auto 50px;
+    }
+
+    .background {
+      position: absolute;
+      z-index: 50;
+      top:0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, .8);
+    }
+
+    .main-nav {
+      background: dodgerblue;
+      color: white;
+      font-size: 26px;
+      display: grid;
+      grid-template-columns: 50px auto;
+      box-shadow: 
+        0 2px 2px rgba(0, 0, 0, .3), 
+        inset 0 8px 12px rgba(255, 255, 255, .5);
+    }
+h
+    .main-nav__brand {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+    }
+
+    .main-nav__title {
+      margin-top: 12px;
+    }
+
+    .main-nav__trailing-btn {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      font-size: 20px;
+    }
+
+    .main-content {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .add-quote-modal,
+    .view-quote-modal,
+    .add-category-modal {
+      position: absolute;
+      z-index: 100;
+      top: 72px;
+      width: 80%;
+      margin: 0 10%;
+      padding: 16px;
+      background: white;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .modal-row {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 33% auto;
+      margin-bottom: 20px;
+    }
+
+    .modal-label {
+      text-align: center;
+      margin-right: 12px;
+    }
+
+    .add-tile,
+    .quote-tile,
+    .category-tile {
+      position: relative;
+      display: flex;
+      padding: 16px;
+      border-bottom: 1px solid #ccc;
+    }
+    .quote-tile:after,
+    .category-tile:after {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 100%;
+      width: 100%;
+      transition: left .2s;
+    }
+    .quote-tile.deleted:after,
+    .category-tile.deleted:after {
+      left: 0;
+    }
+
+    .leading-tile-icon {
+      margin-right: 12px;
+      color: #444;
+      width: 0;
+      overflow: hidden;
+      transition: all 2s;
+    }
+    .add-tile .leading-tile-icon,
+    .quote-tile.can-delete .leading-tile-icon,
+    .category-tile.can-delete .leading-tile-icon {
+      width: auto;
+    }
+
+    .fade-out-tile-text {
+      position: absolute;
+      top: 2px;
+      right: 30px;
+      bottom: 2px;
+      width: 200px;
+      background: linear-gradient(to right, transparent, white 75%);
+      /* background: red; */
+    }
+
+    .trailing-tile-icon {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      color: #ccc;
+    }
+    .quote-tile .trailing-tile-icon {
+      top: 24px;
+    }
+
+    .quote-tile-subtext {
+      font-size: 14px;
+      color: #888;
+    }
+
+    .home-page {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .daily-quote {
+      width: 85%;
+      padding: 8px 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .daily-quote-title {
+      font-size: 28px;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .daily-quote-text {
+      margin-bottom: 8px;
+    }
+
+    .daily-quote-author {
+      margin-bottom: 16px;
+      /* text-align: end; */
+    }
+
+    .daily-quote-btns {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .btn {
+      text-align: center;
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: darkorange;
+      color: white;
+      box-shadow:  
+        inset 0 8px 12px rgba(255, 255, 255, .5), 
+        inset 0 -4px 8px -2px rgba(0, 0, 0, .3);
+    }
+
+    .main-tabs {
+      background: dodgerblue;
+      color: white;
+      display: grid;
+      grid-template-columns: 33% 34% 33%;
+    }
+
+    .tab {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .tab-middle {
+      position: absolute;
+      bottom: 0;
+      left: 33%;
+      right: 33%;
+      height: 58px;
+      background: darkorange;
+      box-shadow: 
+        inset 0 8px 12px rgba(255, 255, 255, .5);
+    }
+
+    .tab-left {
+      box-shadow: 
+        inset -6px 0 4px -4px rgba(0, 0, 0, .3), 
+        inset 0 8px 12px rgba(255, 255, 255, .5);
+    }
+
+    .tab-right {
+      box-shadow: 
+        inset 6px 0 4px -4px rgba(0, 0, 0, .3), 
+        inset 0 8px 12px rgba(255, 255, 255, .5);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+    
+  </style>
+
+</body>
+
+</html>
